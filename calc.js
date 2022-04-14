@@ -1,60 +1,91 @@
-var a = '';
-var b = '';
-var num = [];
-var ans;
+let runningTotal = 0;
+let buffer = "0";
+let previousOperator = null;
+const screen = document.querySelector(".screen");
 
-// All the numbers and operators input will be stored in an array "num" using function "sendNum()"
-function sendNum(digit){
+const btns = document.querySelectorAll(".calc-button");
+console.log("btns", btns);
 
-	num.push(digit);
-
-	if(num.length != 1){
-		a = '';
-		document.getElementById('screen').innerHTML = a;		// clearing the screen.
-	}
-
-
-	for(i=0; i<num.length ; i++){
-
-		a = a + num[i];				// concatenate the elements of the array "num" into a single string, which will be displayed on the screen
-		
-	}
-
-document.getElementById('screen').innerHTML = a;	// displaying the concatenated string
-
-	
+for (let i = 0; i < btns.length; i++) {
+  btns[i].addEventListener("click", function() {
+	  console.log(btns[i])
+    btns[i].classList.toggle("red");
+	buttonClick(event.target.innerText);
+  });
 }
 
-// when the user presses "=", function "equalTo()" is called 
-function equalTo(){
-	document.getElementById('screen').innerHTML = '';
-
-	for(i=0; i<num.length ; i++){
-
-		b += num[i];						// concatenating the array "num" into a single string
-	}
-
-	ans = eval(b);	
-
-	document.getElementById('screen').innerHTML = ans;		// result display
-
-	while(num.length > 0){
-    	num.pop();				// emptying the array "num"
-	}
-
-	num.push(ans.toString());
-
-	
+function buttonClick(value) {
+	if (isNaN(parseInt(value))) {
+		handleSymbol(value);
+	} else {
+		handleNumber(value);
+    }
+	rerender();
 }
 
+function handleNumber(value) {
+	if (buffer === "0") {
+	  buffer = value;
+	} else {
+	  buffer += value;
+	}
+}
 
-// When user presses "AC", function "clearScr()" is called
-function clearScr(){
-	document.getElementById('screen').innerHTML = '';
-    while(num.length > 0){
-    	num.pop();				// emptying the array "num"
+function handleSymbol(value) {
+	switch (value){
+		case 'C':
+			buffer = "0";
+			runningTotal = 0;
+			previousOperator === null;
+			break;
+		case "=":
+			if (previousOperator === null) {
+				return;
+
+			}
+			flushOperation(parseInt(buffer));
+			previousOperator = null;
+			buffer =  "" + runningTotal;
+			runningTotal = 0;
+			break;
+		case "⬅":
+			if (buffer.length === 1) {
+				buffer = "0";
+			} else {
+				buffer = buffer.substring(0, buffer.length-1);
+			}
+			break;
+		default:
+			handleMath(value);
+			break;
+	}
+}
+
+function handleMath(value) {
+	const intBuffer = parseInt(buffer);
+	if (runningTotal === 0) {
+		runningTotal = intBuffer;
+	}else {
+		flushOperation(intBuffer);
 	}
 
-	a ='';	
-	b ='';
+	previousOperator = value;
+
+	buffer = "0";
+}
+function flushOperation(intBuffer) {
+	if (previousOperator === "+") {
+		runningTotal += intBuffer;
+	}else if (previousOperator === "-") {
+		runningTotal -= intBuffer;
+	}else if (previousOperator === "×") {
+		runningTotal *= intBuffer;
+	}else {
+		runningTotal /= intBuffer;
+	}
+}
+	
+
+function rerender() {
+	screen.innerText = buffer;
 }
