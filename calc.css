@@ -6,9 +6,13 @@ boby {
 	padding: 0;
 	margin: 0;
 }
+.calc-body{
+	display: flex;
+	justify-content: center;
+}
 
 .calc{
-	width: 400px;
+	width: 500px;
 	background-color: black;
 	color: white;
 }
